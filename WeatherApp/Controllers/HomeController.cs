@@ -2,14 +2,24 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Repositories;
 using WeatherApp.Models;
 
 namespace WeatherApp.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IWeatherRepository _weatherRepository;
+
+        public HomeController(IWeatherRepository weatherRepository)
+        {
+            _weatherRepository = weatherRepository;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -27,6 +37,18 @@ namespace WeatherApp.Controllers
             ViewData["Message"] = "Your contact page.";
 
             return View();
+        }
+
+        public async Task<IActionResult> GetWeatherData()
+        {
+            var model = await _weatherRepository.GetWeatherAsync("London");
+            return Json(model);
+        }
+
+        public async Task<IActionResult> GetWeatherStringData()
+        {
+            var model = await _weatherRepository.GetWeatherJsonAsync("London");
+            return Content(model, "application/json");
         }
 
         public IActionResult Error()
